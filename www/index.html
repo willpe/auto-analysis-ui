@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>    
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <h1>Diagnostic Analysis Results</h1>
+    <ul id="results">
+    </ul>
+  </body>
+
+  <script>
+
+    document.onreadystatechange = () => {
+      if (document.readyState === 'complete') {
+        loadData('results.json');
+      }
+    };
+
+    async function loadData(url) {
+      const response = await fetch('results.json');
+      const results = await response.json();
+      renderData(results);
+    }
+
+    function renderData(data) {
+      var mainContainer = document.getElementById("results");
+      data.interpretedResults.forEach(result => {
+        var div = document.createElement("li");
+        div.innerHTML = `[${result.severity} ${result.errorCode}] ${result.shortDescription}`;
+
+        mainContainer.appendChild(div);
+      });
+    }
+
+
+</script>
+</html>
