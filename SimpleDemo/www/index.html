@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>    
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <h1>Diagnostic Analysis Results</h1>
+    <ul id="results">
+    </ul>
+  </body>
+
+  <script>
+
+    document.onreadystatechange = () => {
+      if (document.readyState === 'complete') {
+        loadData('results.json');
+      }
+    };
+
+    async function loadData(url) {
+      const response = await fetch('results.json');
+      const results = await response.json();
+      renderData(results);
+    }
+
+    function renderData(data) {
+      var mainContainer = document.getElementById("results");
+      var section = document.createElement('section');
+
+      data.interpretedResults.forEach(result => {
+        var div = document.createElement("ul");
+        div.innerHTML = `<b>[${result.severity} ${result.errorCode}] ${result.shortDescription}</b>`;
+        
+        var details = result.details;
+        details.forEach(detail => {
+          var section2 = document.createElement('ul');
+          section2.innerHTML = `${detail.region.header}`;
+          detail.region.items.forEach(item => {
+            var line = document.createElement('li');
+            if (!item.text){ //Tree
+              item.tree.roots.forEach(root=> {
+                line.appendChild(parseChildren(root));
+              });
+            }
+            else{ //TextBlock
+              line.innerHTML = `${item.text}`;
+            }
+            section2.appendChild(line);
+          });
+          div.appendChild(section2);
+          div.appendChild(document.createElement('br'));
+        });
+        section.appendChild(div);
+      });
+      mainContainer.appendChild(section);
+    }
+
+    function parseChildren(root){
+      var section = document.createElement('ul');
+      if(!root.values){
+        return section;
+      }
+      var li = document.createElement('li');
+      root.values.forEach(value => {
+        if(!value){
+          return;
+        }
+        li.innerHTML += `${value} `;
+      });
+      section.appendChild(li);
+      root.children.forEach(child => {
+        section.appendChild(parseChildren(child));
+
+      });
+      return section;
+    }
+
+</script>
+</html>
